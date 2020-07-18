@@ -41,7 +41,7 @@ def welcome():
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs <br/>"
         f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<end><br/>"
+        f"/api/v1.0/<end>"
     )
 
 
@@ -87,7 +87,9 @@ def tobs():
     session = Session(engine)
     
    # Query the dates and temperature observations of the most active station for the last year of data.
-    results = results = session.query(measurement.tobs).filter(measurement.station == 'USC00519281').\
+    
+    prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
+    results = session.query(measurement.tobs).filter(measurement.station == 'USC00519281').\
                         filter(measurement.date >= prev_year).all()
         
     annual_tobs = []
@@ -100,8 +102,49 @@ def tobs():
     return jsonify(annual_tobs)
 
 
+@app.route("/api/v1.0/start")
+def start():
+   # Create our session (link) from Python to the DB
+    session = Session(engine)
 
+    #When given the start only, calculate `TMIN`, `TAVG`, and `TMAX` for all dates greater than and equal to the start date.
+    results = session.query(func.min(measurement.tobs), func.max(measurement.tobs), func.avg(measurement.tobs)).\
+                filter(measurement.date >= 'date').all()
+    
+    
+    start = []
+    for s in results:
+        start_dict = {}
+        start_dict['Start Date'] = date
+        start_dict['TMIN'] = s.min
+        start_dict['TMAX'] = s.max
+        start_dict['TAVG'] = s.agv
+        start_data.append(start)
+    
+    return jsonify(start)
 
+    
+@app.route("/api/v1.0/end")
+def end():
+   # Create our session (link) from Python to the DB
+    session = Session(engine)
 
+    #When given the start and the end date, calculate the `TMIN`, `TAVG`, and `TMAX` for dates between the start and end date inclusive.
+  
+ results = session.query(func.min(measurement.tobs), func.max(measurement.tobs), func.avg(measurement.tobs)).\
+                filter(measurement.date >= 'date').\
+                filter(measurement.date <= 'end').all()
+    end = []
+    for e in results:
+        start_dict = {}
+        start_dict['Start Date'] = date
+        start_dict['TMIN'] = e.min
+        start_dict['TMAX'] = e.max
+        start_dict['TAVG'] = e.agv
+        start_data.append(end)
+    
+    return jsonify(end)
+    
+    
 if __name__ == '__main__':
     app.run(debug=True)

@@ -50,7 +50,6 @@ def precipitation():
     # Create our session (link) from Python to the DB
     session = Session(engine)
 
-  
     results = session.query(measurement.date, measurement.prcp).\
     filter(measurement.date > '2016-08-22').\
     filter(measurement.date <'2017-08-23').\

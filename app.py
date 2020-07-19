@@ -41,7 +41,7 @@ def welcome():
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs <br/>"
         f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<end>"
+        f"//api/v1.0/<start>/<end>"
     )
 
 
@@ -124,7 +124,7 @@ def start():
     return jsonify(start)
 
     
-@app.route("/api/v1.0/end")
+@app.route("/api/v1.0/<start>/<end>")
 def end():
    # Create our session (link) from Python to the DB
     session = Session(engine)
